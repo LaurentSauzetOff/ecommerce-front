@@ -340,6 +340,11 @@ export default function CartPage() {
                   />
                   {errors.country && <ErrorText>{errors.country}</ErrorText>}
                 </div>
+                <input
+                  type="hidden"
+                  name="products"
+                  value={cartProducts.join(",")}
+                />
                 <Button black block type="submit">
                   Continue to payment
                 </Button>
