@@ -66,6 +66,12 @@ const CityHolder = styled.div`
   gap: 5px;
 `;
 
+const ErrorText = styled.p`
+  color: red;
+  font-size: 0.9em;
+  margin: 5px 0 0 0;
+`;
+
 export default function CartPage() {
   const { cartProducts, addProduct, removeProduct, clearCart } =
     useContext(CartContext);
@@ -77,15 +83,25 @@ export default function CartPage() {
   const [streetAddress, setStreetAddress] = useState("");
   const [country, setCountry] = useState("");
   const [isSuccess, setIsSuccess] = useState(false);
+  const [errors, setErrors] = useState({});
   useEffect(() => {
     if (cartProducts.length > 0) {
-      axios.post("/api/cart", { ids: cartProducts }).then((response) => {
-        setProducts(response.data);
-      });
+      axios
+        .post("/api/cart", { ids: cartProducts })
+        .then((response) => {
+          setProducts(response.data);
+        })
+        .catch((error) => {
+          console.error(
+            "Erreur lors de la récupération des produits du panier",
+            error
+          );
+        });
     } else {
       setProducts([]);
     }
   }, [cartProducts]);
+
   useEffect(() => {
     if (typeof window === "undefined") {
       return;
@@ -95,31 +111,88 @@ export default function CartPage() {
       clearCart();
     }
   }, []);
+
   function moreOfThisProduct(id) {
     addProduct(id);
   }
+
   function lessOfThisProduct(id) {
     removeProduct(id);
   }
+
+  function validateForm() {
+    const newErrors = {};
+
+    // Validation du nom
+    if (!name.trim()) {
+      newErrors.name = "Le nom est requis.";
+    } else if (name.trim().length < 2) {
+      newErrors.name = "Le nom doit comporter au moins 2 caractères.";
+    }
+
+    // Validation de l'email
+    if (!email.trim()) {
+      newErrors.email = "L'email est requis.";
+    } else if (!/^\S+@\S+\.\S+$/.test(email.trim())) {
+      newErrors.email = "L'email n'est pas valide.";
+    }
+
+    // Validation de la ville
+    if (!city.trim()) {
+      newErrors.city = "La ville est requise.";
+    }
+
+    // Validation du code postal
+    if (!postalCode.trim()) {
+      newErrors.postalCode = "Le code postal est requis.";
+    } else if (!/^\d{4,10}$/.test(postalCode.trim())) {
+      newErrors.postalCode = "Le code postal n'est pas valide.";
+    }
+
+    // Validation de l'adresse
+    if (!streetAddress.trim()) {
+      newErrors.streetAddress = "L'adresse est requise.";
+    }
+
+    // Validation du pays
+    if (!country.trim()) {
+      newErrors.country = "Le pays est requis.";
+    }
+
+    setErrors(newErrors);
+
+    // Si l'objet newErrors est vide, le formulaire est valide
+    return Object.keys(newErrors).length === 0;
+  }
+
   async function goToPayment() {
-    const response = await axios.post("/api/checkout", {
-      name,
-      email,
-      city,
-      postalCode,
-      streetAddress,
-      country,
-      cartProducts,
-    });
-    if (response.data.url) {
-      window.location = response.data.url;
+    if (!validateForm()) {
+      return;
+    }
+
+    try {
+      const response = await axios.post("/api/checkout", {
+        name,
+        email,
+        city,
+        postalCode,
+        streetAddress,
+        country,
+        cartProducts,
+      });
+      if (response.data.url) {
+        window.location = response.data.url;
+      }
+    } catch (error) {
+      console.error("Erreur lors du passage en caisse :", error);
+      // Vous pouvez afficher un message d'erreur à l'utilisateur ici
     }
   }
-  let total = 0;
-  for (const productId of cartProducts) {
-    const price = products.find((p) => p._id === productId)?.price || 0;
-    total += price;
-  }
+
+  const total = cartProducts.reduce((sum, productId) => {
+    const product = products.find((p) => p._id === productId);
+    return sum + (product?.price || 0);
+  }, 0);
 
   if (isSuccess) {
     return (
@@ -154,39 +227,39 @@ export default function CartPage() {
                   </tr>
                 </thead>
                 <tbody>
-                  {products.map((product) => (
-                    <tr key={product._id}>
-                      <ProductInfoCell>
-                        <ProductImageBox>
-                          <img src={product.images[0]} alt="" />
-                        </ProductImageBox>
-                        {product.title}
-                      </ProductInfoCell>
-                      <td>
-                        <Button onClick={() => lessOfThisProduct(product._id)}>
-                          -
-                        </Button>
-                        <QuantityLabel>
-                          {
-                            cartProducts.filter((id) => id === product._id)
-                              .length
-                          }
-                        </QuantityLabel>
-                        <Button onClick={() => moreOfThisProduct(product._id)}>
-                          +
-                        </Button>
-                      </td>
-                      <td>
-                        $
-                        {cartProducts.filter((id) => id === product._id)
-                          .length * product.price}
-                      </td>
-                    </tr>
-                  ))}
+                  {products.map((product) => {
+                    const quantity = cartProducts.filter(
+                      (id) => id === product._id
+                    ).length;
+                    return (
+                      <tr key={product._id}>
+                        <ProductInfoCell>
+                          <ProductImageBox>
+                            <img src={product.images[0]} alt={product.title} />
+                          </ProductImageBox>
+                          {product.title}
+                        </ProductInfoCell>
+                        <td>
+                          <Button
+                            onClick={() => lessOfThisProduct(product._id)}
+                          >
+                            -
+                          </Button>
+                          <QuantityLabel>{quantity}</QuantityLabel>
+                          <Button
+                            onClick={() => moreOfThisProduct(product._id)}
+                          >
+                            +
+                          </Button>
+                        </td>
+                        <td>${quantity * product.price}</td>
+                      </tr>
+                    );
+                  })}
                   <tr>
                     <td></td>
                     <td></td>
-                    <td>${total}</td>
+                    <td>Total : ${total}</td>
                   </tr>
                 </tbody>
               </Table>
@@ -195,53 +268,82 @@ export default function CartPage() {
           {!!cartProducts?.length && (
             <Box>
               <h2>Order information</h2>
-              <Input
-                type="text"
-                placeholder="Name"
-                value={name}
-                name="name"
-                onChange={(ev) => setName(ev.target.value)}
-              />
-              <Input
-                type="text"
-                placeholder="Email"
-                value={email}
-                name="email"
-                onChange={(ev) => setEmail(ev.target.value)}
-              />
-              <CityHolder>
-                <Input
-                  type="text"
-                  placeholder="City"
-                  value={city}
-                  name="city"
-                  onChange={(ev) => setCity(ev.target.value)}
-                />
-                <Input
-                  type="text"
-                  placeholder="Postal Code"
-                  value={postalCode}
-                  name="postalCode"
-                  onChange={(ev) => setPostalCode(ev.target.value)}
-                />
-              </CityHolder>
-              <Input
-                type="text"
-                placeholder="Street Address"
-                value={streetAddress}
-                name="streetAddress"
-                onChange={(ev) => setStreetAddress(ev.target.value)}
-              />
-              <Input
-                type="text"
-                placeholder="Country"
-                value={country}
-                name="country"
-                onChange={(ev) => setCountry(ev.target.value)}
-              />
-              <Button black block onClick={goToPayment}>
-                Continue to payment
-              </Button>
+              <form
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  goToPayment();
+                }}
+              >
+                <div>
+                  <Input
+                    type="text"
+                    placeholder="Name"
+                    value={name}
+                    name="name"
+                    onChange={(ev) => setName(ev.target.value)}
+                  />
+                  {errors.name && <ErrorText>{errors.name}</ErrorText>}
+                </div>
+                <div>
+                  <Input
+                    type="text"
+                    placeholder="Email"
+                    value={email}
+                    name="email"
+                    onChange={(ev) => setEmail(ev.target.value)}
+                  />
+                  {errors.email && <ErrorText>{errors.email}</ErrorText>}
+                </div>
+                <CityHolder>
+                  <div style={{ flex: 1 }}>
+                    <Input
+                      type="text"
+                      placeholder="City"
+                      value={city}
+                      name="city"
+                      onChange={(ev) => setCity(ev.target.value)}
+                    />
+                    {errors.city && <ErrorText>{errors.city}</ErrorText>}
+                  </div>
+                  <div style={{ flex: 1 }}>
+                    <Input
+                      type="text"
+                      placeholder="Postal Code"
+                      value={postalCode}
+                      name="postalCode"
+                      onChange={(ev) => setPostalCode(ev.target.value)}
+                    />
+                    {errors.postalCode && (
+                      <ErrorText>{errors.postalCode}</ErrorText>
+                    )}
+                  </div>
+                </CityHolder>
+                <div>
+                  <Input
+                    type="text"
+                    placeholder="Street Address"
+                    value={streetAddress}
+                    name="streetAddress"
+                    onChange={(ev) => setStreetAddress(ev.target.value)}
+                  />
+                  {errors.streetAddress && (
+                    <ErrorText>{errors.streetAddress}</ErrorText>
+                  )}
+                </div>
+                <div>
+                  <Input
+                    type="text"
+                    placeholder="Country"
+                    value={country}
+                    name="country"
+                    onChange={(ev) => setCountry(ev.target.value)}
+                  />
+                  {errors.country && <ErrorText>{errors.country}</ErrorText>}
+                </div>
+                <Button black block type="submit">
+                  Continue to payment
+                </Button>
+              </form>
             </Box>
           )}
         </ColumnsWrapper>
