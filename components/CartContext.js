@@ -7,6 +7,10 @@ export function CartContextProvider({ children }) {
 
   const [cartProducts, setCartProducts] = useState([]);
 
+  const clearCart = () => {
+    setCartProducts([]);
+  };
+
   useEffect(() => {
     if (cartProducts?.length > 0) {
       ls?.setItem("cart", JSON.stringify(cartProducts));
@@ -43,7 +47,8 @@ export function CartContextProvider({ children }) {
         cartProducts,
         setCartProducts,
         addProduct,
-        removeProduct
+        removeProduct,
+        clearCart
       }}
     >
       {children}
