@@ -4,7 +4,7 @@ import { buffer } from "micro";
 import { Order } from "@/models/Order";
 
 const endpointSecret =
-  "whsec_634d3142fd2755bd61adaef74ce0504bd2044848c8aac301ffdb56339a0ca78d";
+  "whsec_b1de2b8a20b655cfa542a25289c18ed63a5018d159080c30cdbf3be56368f754";
 
 export default async function handler(req, res) {
   await mongooseConnect();
@@ -27,6 +27,7 @@ export default async function handler(req, res) {
   switch (event.type) {
     case "checkout.session.completed":
       const data = event.data.object;
+      console.log(data);
       const orderId = data.metadata.orderId;
       const paid = data.payment_status === "paid";
       if (orderId && paid) {
@@ -48,3 +49,4 @@ export const config = {
 
 // bright-thrift-cajole-lean
 // acct_1Lj5ADIUXXMmgk2a
+// acct_1MTrLvGAR7o7nKYb
