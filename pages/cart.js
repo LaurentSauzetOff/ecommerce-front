@@ -11,17 +11,19 @@ import Input from "@/components/Input";
 const ColumnsWrapper = styled.div`
   display: grid;
   grid-template-columns: 1fr;
+  gap: 40px;
+  margin-top: 40px;
+
   @media screen and (min-width: 768px) {
     grid-template-columns: 1.2fr 0.8fr;
   }
-  gap: 40px;
-  margin-top: 40px;
 `;
 
 const Box = styled.div`
   background-color: #fff;
   border-radius: 10px;
   padding: 30px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 `;
 
 const ProductInfoCell = styled.td`
@@ -31,20 +33,23 @@ const ProductInfoCell = styled.td`
 const ProductImageBox = styled.div`
   width: 70px;
   height: 100px;
-  padding: 2px;
+  padding: 5px;
   border: 1px solid rgba(0, 0, 0, 0.1);
   display: flex;
   align-items: center;
   justify-content: center;
   border-radius: 10px;
+
   img {
     max-width: 60px;
     max-height: 60px;
   }
+
   @media screen and (min-width: 768px) {
     padding: 10px;
     width: 100px;
     height: 100px;
+
     img {
       max-width: 80px;
       max-height: 80px;
@@ -55,6 +60,8 @@ const ProductImageBox = styled.div`
 const QuantityLabel = styled.span`
   padding: 0 15px;
   display: block;
+  font-weight: bold;
+
   @media screen and (min-width: 768px) {
     display: inline-block;
     padding: 0 10px;
@@ -63,13 +70,18 @@ const QuantityLabel = styled.span`
 
 const CityHolder = styled.div`
   display: flex;
-  gap: 5px;
+  gap: 10px;
 `;
 
 const ErrorText = styled.p`
-  color: red;
+  color: #e63946;
   font-size: 0.9em;
-  margin: 5px 0 0 0;
+  margin: 5px 0 0;
+`;
+
+const SectionWrapper = styled.div`
+  padding: 60px 0; /* Espacement généreux autour de la section */
+  background-color: #f9f9f9; /* Couleur de fond douce pour contraster */
 `;
 
 export default function CartPage() {
@@ -84,6 +96,7 @@ export default function CartPage() {
   const [country, setCountry] = useState("");
   const [isSuccess, setIsSuccess] = useState(false);
   const [errors, setErrors] = useState({});
+
   useEffect(() => {
     if (cartProducts.length > 0) {
       axios
@@ -91,84 +104,43 @@ export default function CartPage() {
         .then((response) => {
           setProducts(response.data);
         })
-        .catch((error) => {
+        .catch((error) =>
           console.error(
             "Erreur lors de la récupération des produits du panier",
             error
-          );
-        });
+          )
+        );
     } else {
       setProducts([]);
     }
   }, [cartProducts]);
 
   useEffect(() => {
-    if (typeof window === "undefined") {
-      return;
-    }
-    if (window?.location.href.includes("success")) {
+    if (typeof window === "undefined") return;
+
+    if (window.location.href.includes("success")) {
       setIsSuccess(true);
       clearCart();
     }
   }, []);
 
-  function moreOfThisProduct(id) {
-    addProduct(id);
-  }
-
-  function lessOfThisProduct(id) {
-    removeProduct(id);
-  }
-
   function validateForm() {
     const newErrors = {};
-
-    // Validation du nom
-    if (!name.trim()) {
-      newErrors.name = "Le nom est requis.";
-    } else if (name.trim().length < 2) {
-      newErrors.name = "Le nom doit comporter au moins 2 caractères.";
-    }
-
-    // Validation de l'email
-    if (!email.trim()) {
-      newErrors.email = "L'email est requis.";
-    } else if (!/^\S+@\S+\.\S+$/.test(email.trim())) {
+    if (!name.trim()) newErrors.name = "Le nom est requis.";
+    if (!email.trim() || !/^\S+@\S+\.\S+$/.test(email.trim()))
       newErrors.email = "L'email n'est pas valide.";
-    }
-
-    // Validation de la ville
-    if (!city.trim()) {
-      newErrors.city = "La ville est requise.";
-    }
-
-    // Validation du code postal
-    if (!postalCode.trim()) {
-      newErrors.postalCode = "Le code postal est requis.";
-    } else if (!/^\d{4,10}$/.test(postalCode.trim())) {
+    if (!city.trim()) newErrors.city = "La ville est requise.";
+    if (!postalCode.trim() || !/^\d{4,10}$/.test(postalCode.trim()))
       newErrors.postalCode = "Le code postal n'est pas valide.";
-    }
-
-    // Validation de l'adresse
-    if (!streetAddress.trim()) {
+    if (!streetAddress.trim())
       newErrors.streetAddress = "L'adresse est requise.";
-    }
-
-    // Validation du pays
-    if (!country.trim()) {
-      newErrors.country = "Le pays est requis.";
-    }
-
+    if (!country.trim()) newErrors.country = "Le pays est requis.";
     setErrors(newErrors);
-
-    // Si l'objet newErrors est vide, le formulaire est valide
     return Object.keys(newErrors).length === 0;
   }
 
   async function goToPayment() {
-    if (!validateForm()) {
-      return;
-    }
+    if (!validateForm()) return;
 
     try {
       const response = await axios.post("/api/checkout", {
@@ -180,12 +152,9 @@ export default function CartPage() {
         country,
         cartProducts,
       });
-      if (response.data.url) {
-        window.location = response.data.url;
-      }
+      if (response.data.url) window.location = response.data.url;
     } catch (error) {
       console.error("Erreur lors du passage en caisse :", error);
-      // Vous pouvez afficher un message d'erreur à l'utilisateur ici
     }
   }
 
@@ -198,6 +167,7 @@ export default function CartPage() {
     return (
       <>
         <Header />
+        <SectionWrapper>
         <Center>
           <ColumnsWrapper>
             <Box>
@@ -206,12 +176,15 @@ export default function CartPage() {
             </Box>
           </ColumnsWrapper>
         </Center>
+        </SectionWrapper>
       </>
     );
   }
+
   return (
     <>
       <Header />
+      <SectionWrapper>
       <Center>
         <ColumnsWrapper>
           <Box>
@@ -279,7 +252,6 @@ export default function CartPage() {
                     type="text"
                     placeholder="Name"
                     value={name}
-                    name="name"
                     onChange={(ev) => setName(ev.target.value)}
                   />
                   {errors.name && <ErrorText>{errors.name}</ErrorText>}
@@ -289,62 +261,44 @@ export default function CartPage() {
                     type="text"
                     placeholder="Email"
                     value={email}
-                    name="email"
                     onChange={(ev) => setEmail(ev.target.value)}
                   />
                   {errors.email && <ErrorText>{errors.email}</ErrorText>}
                 </div>
                 <CityHolder>
-                  <div style={{ flex: 1 }}>
-                    <Input
-                      type="text"
-                      placeholder="City"
-                      value={city}
-                      name="city"
-                      onChange={(ev) => setCity(ev.target.value)}
-                    />
-                    {errors.city && <ErrorText>{errors.city}</ErrorText>}
-                  </div>
-                  <div style={{ flex: 1 }}>
-                    <Input
-                      type="text"
-                      placeholder="Postal Code"
-                      value={postalCode}
-                      name="postalCode"
-                      onChange={(ev) => setPostalCode(ev.target.value)}
-                    />
-                    {errors.postalCode && (
-                      <ErrorText>{errors.postalCode}</ErrorText>
-                    )}
-                  </div>
-                </CityHolder>
-                <div>
                   <Input
                     type="text"
-                    placeholder="Street Address"
-                    value={streetAddress}
-                    name="streetAddress"
-                    onChange={(ev) => setStreetAddress(ev.target.value)}
+                    placeholder="City"
+                    value={city}
+                    onChange={(ev) => setCity(ev.target.value)}
                   />
-                  {errors.streetAddress && (
-                    <ErrorText>{errors.streetAddress}</ErrorText>
+                  {errors.city && <ErrorText>{errors.city}</ErrorText>}
+                  <Input
+                    type="text"
+                    placeholder="Postal Code"
+                    value={postalCode}
+                    onChange={(ev) => setPostalCode(ev.target.value)}
+                  />
+                  {errors.postalCode && (
+                    <ErrorText>{errors.postalCode}</ErrorText>
                   )}
-                </div>
-                <div>
-                  <Input
-                    type="text"
-                    placeholder="Country"
-                    value={country}
-                    name="country"
-                    onChange={(ev) => setCountry(ev.target.value)}
-                  />
-                  {errors.country && <ErrorText>{errors.country}</ErrorText>}
-                </div>
-                <input
-                  type="hidden"
-                  name="products"
-                  value={cartProducts.join(",")}
+                </CityHolder>
+                <Input
+                  type="text"
+                  placeholder="Street Address"
+                  value={streetAddress}
+                  onChange={(ev) => setStreetAddress(ev.target.value)}
                 />
+                {errors.streetAddress && (
+                  <ErrorText>{errors.streetAddress}</ErrorText>
+                )}
+                <Input
+                  type="text"
+                  placeholder="Country"
+                  value={country}
+                  onChange={(ev) => setCountry(ev.target.value)}
+                />
+                {errors.country && <ErrorText>{errors.country}</ErrorText>}
                 <Button black block type="submit">
                   Continue to payment
                 </Button>
@@ -353,6 +307,7 @@ export default function CartPage() {
           )}
         </ColumnsWrapper>
       </Center>
+      </SectionWrapper>
     </>
   );
 }
