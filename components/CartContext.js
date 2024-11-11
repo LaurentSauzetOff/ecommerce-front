@@ -19,7 +19,7 @@ export function CartContextProvider({ children }) {
     setCartProducts((prev) => [...prev, productId]);
   }
   function removeProduct(productId) {
-    setCartProducts((prev) => {
+    setCartProducts(prev => {
       const pos = prev.indexOf(productId);
       if (pos !== -1) {
         return prev.filter((value, index) => index !== pos);

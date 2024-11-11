@@ -27,7 +27,6 @@ export default async function handler(req, res) {
   switch (event.type) {
     case "checkout.session.completed":
       const data = event.data.object;
-      console.log(data);
       const orderId = data.metadata.orderId;
       const paid = data.payment_status === "paid";
       if (orderId && paid) {
@@ -47,6 +46,3 @@ export const config = {
   api: { bodyParser: false },
 };
 
-// bright-thrift-cajole-lean
-// acct_1Lj5ADIUXXMmgk2a
-// acct_1MTrLvGAR7o7nKYb

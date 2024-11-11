@@ -1,5 +1,5 @@
-import { Product } from "@/models/Product";
 import { mongooseConnect } from "@/lib/mongoose";
+import { Product } from "@/models/Product";
 import { Order } from "@/models/Order";
 const stripe = require("stripe")(process.env.STRIPE_SK);
 
@@ -8,9 +8,15 @@ export default async function handler(req, res) {
     res.json("should be a POST request");
     return;
   }
-
-  const { name, email, city, postalCode, streetAddress, country, cartProducts } =
-    req.body;
+  const {
+    name,
+    email,
+    city,
+    postalCode,
+    streetAddress,
+    country,
+    cartProducts,
+  } = req.body;
   await mongooseConnect();
   const productsIds = cartProducts;
   const uniqueIds = [...new Set(productsIds)];
@@ -21,7 +27,7 @@ export default async function handler(req, res) {
     const productInfo = productsInfos.find(
       (p) => p._id.toString() === productId
     );
-    const quantity = productsIds.filter((id) => id === productId).length || 0;
+    const quantity = productsIds.filter((id) => id === productId)?.length || 0;
     if (quantity > 0 && productInfo) {
       line_items.push({
         quantity,
@@ -51,8 +57,10 @@ export default async function handler(req, res) {
     customer_email: email,
     success_url: process.env.PUBLIC_URL + "/cart?success=1",
     cancel_url: process.env.PUBLIC_URL + "/cart?canceled=1",
-    metadata: { orderId: orderDoc._id.toString() },
+    metadata: { orderId: orderDoc._id.toString(), test: "ok" },
   });
 
-  res.json({ url: session.url });
+  res.json({
+    url: session.url,
+  });
 }
