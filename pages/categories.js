@@ -27,7 +27,7 @@ const CategoryTitle = styled.div`
     color: #555;
     display: inline-block;
   }
-  margin-top: 40px;
+  margin-top: 10px;
   margin-bottom: 0;
 `;
 
