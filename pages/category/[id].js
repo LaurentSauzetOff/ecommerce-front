@@ -8,10 +8,11 @@ import WhiteBox from "@/components/WhiteBox";
 import ProductImages from "@/components/ProductImages";
 import Button from "@/components/Button";
 import CartIcon from "@/components/icons/CartIcon";
-import { useContext, useState } from "react";
+import { useContext, useState, useEffect } from "react";
 import { CartContext } from "@/components/CartContext";
 import { Category } from "@/models/Category";
 import ProductsGrid from "@/components/ProductsGrid";
+import axios from "axios";
 
 const CategoryHeader = styled.div`
   display: flex;
@@ -23,35 +24,58 @@ const CategoryHeader = styled.div`
 `;
 
 const FiltersWrapper = styled.div`
-display: flex;
-gap: 20px;
+  display: flex;
+  gap: 20px;
 `;
 
 const Filter = styled.div`
-background-color: #ddd;
-padding: 5px 10px;
-border-radius: 5px;
-display: flex;
-gap: 5px;
-color: #444;
-select{
-background-color: transparent; border:0; font-size:inherit; color: #444;}
+  background-color: #ddd;
+  padding: 5px 10px;
+  border-radius: 5px;
+  display: flex;
+  gap: 5px;
+  color: #444;
+  select {
+    background-color: transparent;
+    border: 0;
+    font-size: inherit;
+    color: #444;
+  }
 `;
 
-export default function CategoryPage({ category, products }) {
-  const [filtersValues, setFiltersValues] = useState(category.properties.map(p => ({name:p.name, value:'all'})))
+export default function CategoryPage({
+  category,
+  subCategories,
+  products: originalProducts,
+}) {
+  const [products, setProducts] = useState(originalProducts);
+  const [filtersValues, setFiltersValues] = useState(
+    category.properties.map((p) => ({ name: p.name, value: "all" }))
+  );
 
-function handleFilterChange(filterName, filterValue) {
-  setFiltersValues(prev => {
-    return prev.map(p => (
-      {
+  function handleFilterChange(filterName, filterValue) {
+    setFiltersValues((prev) => {
+      return prev.map((p) => ({
         name: p.name,
         value: p.name === filterName ? filterValue : p.value,
+      }));
+    });
+  }
+  useEffect(() => {
+    const catIds = [category._id, ...(subCategories?.map((c) => c._id) || [])];
+
+    const params = new URLSearchParams();
+    params.set("categories", catIds.join(","));
+    filtersValues.forEach((f) => {
+      if (f.value !== "all") {
+        params.set(f.name, f.value);
       }
-    ));
-    return newValues;
-  })
-}
+    });
+    const url = `/api/products?` + params.toString();
+    axios.get(url).then((res) => {
+      setProducts(res.data);
+    });
+  }, [filtersValues]);
 
   return (
     <>
@@ -63,8 +87,13 @@ function handleFilterChange(filterName, filterValue) {
             {category.properties.map((prop) => (
               <Filter key={prop.name}>
                 <span>{prop.name} : </span>
-                
-                <select onChange={ev => handleFilterChange(prop.name, ev.target.value)} value={filtersValues.find(f => f.name === prop.name).value}>
+
+                <select
+                  onChange={(ev) =>
+                    handleFilterChange(prop.name, ev.target.value)
+                  }
+                  value={filtersValues.find((f) => f.name === prop.name).value}
+                >
                   <option value="all">All</option>
                   {prop.values.map((val) => (
                     <option key={val} value={val}>
@@ -91,6 +120,7 @@ export async function getServerSideProps(context) {
   return {
     props: {
       category: JSON.parse(JSON.stringify(category)),
+      subCategories: JSON.parse(JSON.stringify(subCategories)),
       products: JSON.parse(JSON.stringify(products)),
     },
   };
