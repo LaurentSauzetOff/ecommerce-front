@@ -7,6 +7,7 @@ import { CartContext } from "@/components/CartContext";
 import axios from "axios";
 import Table from "@/components/Table";
 import Input from "@/components/Input";
+import {Link} from "next/link"
 
 const ColumnsWrapper = styled.div`
   display: grid;
@@ -124,6 +125,13 @@ export default function CartPage() {
     }
   }, []);
 
+  function moreOfThisProduct(id) {
+    addProduct(id);
+  }
+  function lessOfThisProduct(id) {
+    removeProduct(id);
+  }
+
   function validateForm() {
     const newErrors = {};
     if (!name.trim()) newErrors.name = "Le nom est requis.";
@@ -171,7 +179,7 @@ export default function CartPage() {
         <Center>
           <ColumnsWrapper>
             <Box>
-              <h1>Thanks for your coucou !</h1>
+              <h1>Thanks for your !</h1>
               <p>We will email you when your order will be sent.</p>
             </Box>
           </ColumnsWrapper>
