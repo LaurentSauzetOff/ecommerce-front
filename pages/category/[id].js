@@ -13,33 +13,59 @@ import { CartContext } from "@/components/CartContext";
 import { Category } from "@/models/Category";
 import ProductsGrid from "@/components/ProductsGrid";
 import axios from "axios";
+import Spinner from "@/components/Spinner";
+
+const SectionWrapper = styled.div`
+  padding: 60px 0;
+  background-color: #f9f9f9;
+`;
 
 const CategoryHeader = styled.div`
   display: flex;
   align-items: center;
   justify-content: space-between;
+  margin-bottom: 20px;
+
   h1 {
-    font-size: 1.5rem;
+    font-size: 1.8rem;
+    font-weight: 600;
+    color: #0D3D29;
+    margin: 0;
   }
 `;
 
 const FiltersWrapper = styled.div`
   display: flex;
-  gap: 20px;
+  flex-wrap: wrap;
+  gap: 15px;
 `;
 
 const Filter = styled.div`
-  background-color: #ddd;
-  padding: 5px 10px;
-  border-radius: 5px;
+  background-color: #f0f0f0;
+  padding: 8px 12px;
+  border-radius: 8px;
   display: flex;
-  gap: 5px;
+  gap: 8px;
+  align-items: center;
   color: #444;
+  font-weight: 500;
+
+  span {
+    color: #555;
+  }
+
   select {
     background-color: transparent;
-    border: 0;
-    font-size: inherit;
-    color: #444;
+    border: none;
+    font-size: 1rem;
+    color: #4361ee;
+    cursor: pointer;
+    outline: none;
+    transition: color 0.3s ease;
+
+    &:hover {
+      color: #0D3D29;
+    }
   }
 `;
 
@@ -48,10 +74,18 @@ export default function CategoryPage({
   subCategories,
   products: originalProducts,
 }) {
+  const defaultSorting = "_id-desc";
+  const defaultFilterValues = category.properties.map((p) => ({
+    name: p.name,
+    value: "all",
+  }));
   const [products, setProducts] = useState(originalProducts);
-  const [filtersValues, setFiltersValues] = useState(
-    category.properties.map((p) => ({ name: p.name, value: "all" }))
-  );
+  const [filtersValues, setFiltersValues] = useState(defaultFilterValues);
+
+  const [sort, setSort] = useState(defaultSorting);
+  const [loadingProducts, setLoadingProducts] = useState(false);
+
+  const [filtersChanged, setFiltersChanged] = useState(false);
 
   function handleFilterChange(filterName, filterValue) {
     setFiltersValues((prev) => {
@@ -60,12 +94,19 @@ export default function CategoryPage({
         value: p.name === filterName ? filterValue : p.value,
       }));
     });
+    setFiltersChanged(true);
   }
+
   useEffect(() => {
+    if (!filtersChanged) {
+      return;
+    }
+    setLoadingProducts(true);
     const catIds = [category._id, ...(subCategories?.map((c) => c._id) || [])];
 
     const params = new URLSearchParams();
     params.set("categories", catIds.join(","));
+    params.set("sort", sort);
     filtersValues.forEach((f) => {
       if (f.value !== "all") {
         params.set(f.name, f.value);
@@ -74,12 +115,14 @@ export default function CategoryPage({
     const url = `/api/products?` + params.toString();
     axios.get(url).then((res) => {
       setProducts(res.data);
+      setLoadingProducts(false);
     });
-  }, [filtersValues]);
+  }, [filtersValues, sort, filtersChanged]);
 
   return (
     <>
       <Header />
+      <SectionWrapper>
       <Center>
         <CategoryHeader>
           <h1>{category.name}</h1>
@@ -103,10 +146,32 @@ export default function CategoryPage({
                 </select>
               </Filter>
             ))}
+            <Filter>
+              <span>Sorting : </span>
+              <select
+                value={sort}
+                onChange={(ev) => {
+                  setSort(ev.target.value);
+                  setFiltersChanged(true);
+                }}
+              >
+                <option value="price-asc">price, lowest first</option>
+                <option value="price-desc">price, highest first</option>
+                <option value="_id-desc">Newest first</option>
+                <option value="_id-asc">Oldest first</option>
+              </select>
+            </Filter>
           </FiltersWrapper>
         </CategoryHeader>
-        <ProductsGrid products={products} />
+        {loadingProducts && <Spinner fullWidth />}
+        {!loadingProducts && (
+          <div>
+            {products.length > 0 && <ProductsGrid products={products} />}
+            {products.length === 0 && <div>No products found</div>}
+          </div>
+        )}
       </Center>
+      </SectionWrapper>
     </>
   );
 }
@@ -116,7 +181,6 @@ export async function getServerSideProps(context) {
   const subCategories = await Category.find({ parent: category._id });
   const catIds = [category._id, ...subCategories.map((c) => c._id)];
   const products = await Product.find({ category: catIds });
-  console.log(category);
   return {
     props: {
       category: JSON.parse(JSON.stringify(category)),

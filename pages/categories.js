@@ -18,17 +18,21 @@ const CategoryGrid = styled.div`
 const CategoryTitle = styled.div`
   display: flex;
   align-items: center;
-  gap: 20px;
+  gap: 10px;
   h2 {
-    margin-bottom: 10px;
-    margin-top: 10px;
+    margin: 10px 0;
+    font-size: 1.5rem;
+    color: #0d3d29;
   }
   a {
-    color: #555;
-    display: inline-block;
+    color: #4361ee;
+    font-weight: 500;
+    text-decoration: none;
+    transition: color 0.3s ease;
+    &:hover {
+      color: #0d3d29;
+    }
   }
-  margin-top: 10px;
-  margin-bottom: 0;
 `;
 
 const CategoryWrapper = styled.div`
@@ -37,40 +41,55 @@ const CategoryWrapper = styled.div`
 
 const ShowAllSquare = styled(Link)`
   display: flex;
-  background-color: #ddd;
+  background-color: #f0f0f0;
   height: 160px;
-  border-radius: 15px;
+  border-radius: 12px;
   justify-content: center;
   align-items: center;
-  color: #555;
+  color: #4361ee;
+  font-weight: 500;
   text-decoration: none;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+
+  &:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.15);
+    color: #0d3d29;
+  }
+`;
+
+const SectionWrapper = styled.div`
+  padding: 60px 0; /* Espacement généreux autour de la section */
+  background-color: #f9f9f9; /* Couleur de fond douce pour contraster */
 `;
 
 export default function CategoriesPage({ mainCategories, categoriesProducts }) {
   return (
     <>
       <Header />
-      <Center>
-        {mainCategories.map((cat) => (
-          <CategoryWrapper key={cat.name}>
-            <CategoryTitle>
-              <h2>{cat.name}</h2>
-              <div>
-                <Link href={"/category/" + cat._id}>Show all</Link>
-              </div>
-            </CategoryTitle>
+      <SectionWrapper>
+        <Center>
+          {mainCategories.map((cat) => (
+            <CategoryWrapper key={cat.name}>
+              <CategoryTitle>
+                <h2>{cat.name}</h2>
+                <div>
+                  <Link href={"/category/" + cat._id}>Show all</Link>
+                </div>
+              </CategoryTitle>
 
-            <CategoryGrid>
-              {categoriesProducts[cat._id].map((p) => (
-                <ProductBox {...p} key={p._id} />
-              ))}
-              <ShowAllSquare href={"/category/" + cat._id}>
-                Show all
-              </ShowAllSquare>
-            </CategoryGrid>
-          </CategoryWrapper>
-        ))}
-      </Center>
+              <CategoryGrid>
+                {categoriesProducts[cat._id].map((p) => (
+                  <ProductBox {...p} key={p._id} />
+                ))}
+                <ShowAllSquare href={"/category/" + cat._id}>
+                  Show all
+                </ShowAllSquare>
+              </CategoryGrid>
+            </CategoryWrapper>
+          ))}
+        </Center>
+      </SectionWrapper>
     </>
   );
 }
@@ -85,7 +104,6 @@ export async function getServerSideProps() {
       .filter((c) => c?.parent?.toString() === mainCatId)
       .map((c) => c._id.toString);
     const categoriesIds = [mainCatId, ...childCatIds];
-    console.log("categoriesIds : ", { categoriesIds });
     const products = await Product.find({ category: categoriesIds }, null, {
       limit: 3,
       sort: { _id: 1 },
