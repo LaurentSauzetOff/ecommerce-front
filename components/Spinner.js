@@ -2,23 +2,25 @@ import { BounceLoader } from "react-spinners";
 import styled from "styled-components";
 
 const Wrapper = styled.div`
-  ${(props) => (props.fullWidth ? `
+  ${(props) =>
+    props.fullWidth
+      ? `
     display: flex;
     justify-content: center;
     width: 100%;
     padding: 20px 0;
-  ` : `
+  `
+      : `
     display: inline-flex;
     align-items: center;
     padding: 10px;
-  `)}
+  `}
 `;
 
-export default function Spinner({fullWidth}) {
-    return (
-        <Wrapper fullWidth={fullWidth}>
-
-            <BounceLoader speedMultiplier={2.5} color={'#4361ee'}/>
-        </Wrapper>
-    )
+export default function Spinner({ fullWidth }) {
+  return (
+    <Wrapper fullWidth={fullWidth}>
+      <BounceLoader speedMultiplier={2.5} color={"#4361ee"} />
+    </Wrapper>
+  );
 }
