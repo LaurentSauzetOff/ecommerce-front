@@ -7,7 +7,7 @@ import { CartContext } from "@/components/CartContext";
 
 import { ButtonStyle } from "@/components/Button";
 import {primary} from "@/lib/colors"
-import FlyingButton from "./FlyingButton";
+import FlyingButton from "@/components/FlyingButton";
 
 const ProductWrapper = styled.div``;
 

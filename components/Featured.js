@@ -5,6 +5,7 @@ import ButtonLink from "@/components/ButtonLink";
 import CartIcon from "@/components/icons/CartIcon";
 import { useContext } from "react";
 import { CartContext } from "@/components/CartContext";
+import FlyingButton from "./FlyingButton";
 
 const Bg = styled.div`
   background: linear-gradient(135deg, #222, #333); /* Ajout d'un dégradé */
@@ -101,10 +102,10 @@ export default function Featured({ product }) {
                 >
                   Read more
                 </ButtonLink>
-                <Button white onClick={addFeaturedToCart}>
+                <FlyingButton white main _id={product._id} src={product.images?.[0]}>
                   <CartIcon />
                   Add to cart
-                </Button>
+                </FlyingButton>
               </ButtonsWrapper>
             </div>
           </Column>
