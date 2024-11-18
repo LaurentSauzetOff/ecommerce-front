@@ -4,6 +4,7 @@ import Center from "@/components/Center";
 import { useContext, useState } from "react";
 import { CartContext } from "@/components/CartContext";
 import BarsIcon from "@/components/icons/Bars";
+import SearchIcon from "./icons/SearchIcon";
 
 const StyledHeader = styled.header`
   background-color: rgba(34, 34, 34, 0.95); 
@@ -69,10 +70,13 @@ const NavLink = styled(Link)`
   display: block;
   color: #ddd;
   text-decoration: none;
+  min-width:30px;
   font-size: 1rem;
   font-weight: 500;
   padding: 10px 0;
   transition: color 0.3s ease; 
+  svg {
+  height:20px;}
   
   &:hover {
     color: #fff; 
@@ -119,6 +123,9 @@ export default function Header() {
             <NavLink href={"/account"}>Account</NavLink>
             <NavLink href={"/cart"}>Cart ({cartProducts?.length || 0})</NavLink>
           </StyledNav>
+
+          <NavLink href={"/search"}><SearchIcon/></NavLink>
+
           <NavButton onClick={() => setMobileNavActive(prev => !prev)}>
             <BarsIcon />
           </NavButton>
