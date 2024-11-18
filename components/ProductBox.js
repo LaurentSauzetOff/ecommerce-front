@@ -1,12 +1,5 @@
 import styled from "styled-components";
-import Button from "@/components/Button";
-import CartIcon from "@/components/icons/CartIcon";
 import Link from "next/link";
-import { useContext } from "react";
-import { CartContext } from "@/components/CartContext";
-
-import { ButtonStyle } from "@/components/Button";
-import {primary} from "@/lib/colors"
 import FlyingButton from "@/components/FlyingButton";
 
 const ProductWrapper = styled.div``;
@@ -14,20 +7,28 @@ const ProductWrapper = styled.div``;
 const WhiteBox = styled(Link)`
   background-color: #fff;
   padding: 20px;
-  height: 120px;
+  min-height: 120px;
   text-align: center;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   border-radius: 10px;
+  transition: transform 0.2s, box-shadow 0.2s;
+
+  &:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+  }
+
   img {
     max-width: 100%;
     max-height: 80px;
+    object-fit: cover;
   }
 `;
 
-const Title = styled(Link)`
+const Title = styled.h3`
   font-weight: normal;
   font-size: 0.9rem;
   color: inherit;
@@ -62,23 +63,24 @@ const Price = styled.div`
   }
 `;
 
-
-
-export default function ProductBox({ _id, title, description, price, images }) {
-
+export default function ProductBox({ _id, title, price, images }) {
   const url = "/product/" + _id;
   return (
     <ProductWrapper>
       <WhiteBox href={url}>
         <div>
-          <img src={images?.[0]} alt="" />
+          <img src={images?.[0]} alt="{title}" />
         </div>
       </WhiteBox>
       <ProductInfoBox>
-        <Title href={url}>{title}</Title>
+        <Title>
+          <Link href={url}>{title}</Link>
+        </Title>
         <PriceRow>
           <Price>${price}</Price>
-          <FlyingButton _id={_id} src={images?.[0]} >Add to cart</FlyingButton>
+          <FlyingButton _id={_id} src={images?.[0]}>
+            Add to cart
+          </FlyingButton>
         </PriceRow>
       </ProductInfoBox>
     </ProductWrapper>

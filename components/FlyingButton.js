@@ -48,9 +48,23 @@ const FlyingButtonWrapper = styled.div`
   }
 `;
 
+const Description = styled.p`
+  font-size: 1rem;
+  line-height: 1.6;
+  color: #555;
+  margin-top: 20px;
+`;
+
 export default function FlyingButton(props) {
   const { addProduct } = useContext(CartContext);
   const imgRef = useRef();
+  const [buttonClicked, setButtonClicked] = useState(false);
+
+  const handleAddToCart = () => {
+    addProduct(product._id);
+    setButtonClicked(true);
+    setTimeout(() => setButtonClicked(false), 1000);
+  };
 
   function sendImageToCart(ev) {
     imgRef.current.style.display = "inline-block";

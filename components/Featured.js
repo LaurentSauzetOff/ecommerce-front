@@ -1,13 +1,11 @@
 import Center from "@/components/Center";
 import styled from "styled-components";
-import Button from "@/components/Button";
 import ButtonLink from "@/components/ButtonLink";
 import CartIcon from "@/components/icons/CartIcon";
 import { useContext } from "react";
 import { CartContext } from "@/components/CartContext";
 import FlyingButton from "./FlyingButton";
 import dynamic from "next/dynamic";
-// import {RevealWrapper} from 'next-reveal'
 
 const RevealWrapper = dynamic(
   () => import("next-reveal").then((mod) => mod.RevealWrapper),
