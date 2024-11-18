@@ -101,7 +101,7 @@ export default function Featured({ product }) {
         <ColumnsWrapper>
           <Column>
             <div>
-              <RevealWrapper origin={"left"}>
+              <RevealWrapper origin={"left"} delay={0}>
                 <Title>{product.title}</Title>
                 <Desc>{product.description}</Desc>
                 <ButtonsWrapper>
@@ -126,7 +126,7 @@ export default function Featured({ product }) {
             </div>
           </Column>
           <Column>
-            <RevealWrapper>
+            <RevealWrapper delay={0}>
               <img src="/image.jpeg" alt={product.title} />
             </RevealWrapper>
           </Column>

@@ -7,7 +7,15 @@ import { CartContext } from "@/components/CartContext";
 import axios from "axios";
 import Table from "@/components/Table";
 import Input from "@/components/Input";
-import {Link} from "next/link"
+import { Link } from "next/link";
+import dynamic from "next/dynamic";
+
+const RevealWrapper = dynamic(
+  () => import("next-reveal").then((mod) => mod.RevealWrapper),
+  {
+    ssr: false,
+  }
+);
 
 const ColumnsWrapper = styled.div`
   display: grid;
@@ -176,14 +184,14 @@ export default function CartPage() {
       <>
         <Header />
         <SectionWrapper>
-        <Center>
-          <ColumnsWrapper>
-            <Box>
-              <h1>Thanks for your !</h1>
-              <p>We will email you when your order will be sent.</p>
-            </Box>
-          </ColumnsWrapper>
-        </Center>
+          <Center>
+            <ColumnsWrapper>
+              <Box>
+                <h1>Thanks for your !</h1>
+                <p>We will email you when your order will be sent.</p>
+              </Box>
+            </ColumnsWrapper>
+          </Center>
         </SectionWrapper>
       </>
     );
@@ -193,128 +201,136 @@ export default function CartPage() {
     <>
       <Header />
       <SectionWrapper>
-      <Center>
-        <ColumnsWrapper>
-          <Box>
-            <h2>Cart</h2>
-            {!cartProducts?.length && <div>Your cart is empty</div>}
-            {products?.length > 0 && (
-              <Table>
-                <thead>
-                  <tr>
-                    <th>Product</th>
-                    <th>Quantity</th>
-                    <th>Price</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {products.map((product) => {
-                    const quantity = cartProducts.filter(
-                      (id) => id === product._id
-                    ).length;
-                    return (
-                      <tr key={product._id}>
-                        <ProductInfoCell>
-                          <ProductImageBox>
-                            <img src={product.images[0]} alt={product.title} />
-                          </ProductImageBox>
-                          {product.title}
-                        </ProductInfoCell>
-                        <td>
-                          <Button
-                            onClick={() => lessOfThisProduct(product._id)}
-                          >
-                            -
-                          </Button>
-                          <QuantityLabel>{quantity}</QuantityLabel>
-                          <Button
-                            onClick={() => moreOfThisProduct(product._id)}
-                          >
-                            +
-                          </Button>
-                        </td>
-                        <td>${quantity * product.price}</td>
+        <Center>
+          <ColumnsWrapper>
+            <RevealWrapper delay={0}>
+              <Box>
+                <h2>Cart</h2>
+                {!cartProducts?.length && <div>Your cart is empty</div>}
+                {products?.length > 0 && (
+                  <Table>
+                    <thead>
+                      <tr>
+                        <th>Product</th>
+                        <th>Quantity</th>
+                        <th>Price</th>
                       </tr>
-                    );
-                  })}
-                  <tr>
-                    <td></td>
-                    <td></td>
-                    <td>Total : ${total}</td>
-                  </tr>
-                </tbody>
-              </Table>
-            )}
-          </Box>
-          {!!cartProducts?.length && (
-            <Box>
-              <h2>Order information</h2>
-              <form
-                onSubmit={(e) => {
-                  e.preventDefault();
-                  goToPayment();
-                }}
-              >
-                <div>
-                  <Input
-                    type="text"
-                    placeholder="Name"
-                    value={name}
-                    onChange={(ev) => setName(ev.target.value)}
-                  />
-                  {errors.name && <ErrorText>{errors.name}</ErrorText>}
-                </div>
-                <div>
-                  <Input
-                    type="text"
-                    placeholder="Email"
-                    value={email}
-                    onChange={(ev) => setEmail(ev.target.value)}
-                  />
-                  {errors.email && <ErrorText>{errors.email}</ErrorText>}
-                </div>
-                <CityHolder>
-                  <Input
-                    type="text"
-                    placeholder="City"
-                    value={city}
-                    onChange={(ev) => setCity(ev.target.value)}
-                  />
-                  {errors.city && <ErrorText>{errors.city}</ErrorText>}
-                  <Input
-                    type="text"
-                    placeholder="Postal Code"
-                    value={postalCode}
-                    onChange={(ev) => setPostalCode(ev.target.value)}
-                  />
-                  {errors.postalCode && (
-                    <ErrorText>{errors.postalCode}</ErrorText>
-                  )}
-                </CityHolder>
-                <Input
-                  type="text"
-                  placeholder="Street Address"
-                  value={streetAddress}
-                  onChange={(ev) => setStreetAddress(ev.target.value)}
-                />
-                {errors.streetAddress && (
-                  <ErrorText>{errors.streetAddress}</ErrorText>
+                    </thead>
+                    <tbody>
+                      {products.map((product) => {
+                        const quantity = cartProducts.filter(
+                          (id) => id === product._id
+                        ).length;
+                        return (
+                          <tr key={product._id}>
+                            <ProductInfoCell>
+                              <ProductImageBox>
+                                <img
+                                  src={product.images[0]}
+                                  alt={product.title}
+                                />
+                              </ProductImageBox>
+                              {product.title}
+                            </ProductInfoCell>
+                            <td>
+                              <Button
+                                onClick={() => lessOfThisProduct(product._id)}
+                              >
+                                -
+                              </Button>
+                              <QuantityLabel>{quantity}</QuantityLabel>
+                              <Button
+                                onClick={() => moreOfThisProduct(product._id)}
+                              >
+                                +
+                              </Button>
+                            </td>
+                            <td>${quantity * product.price}</td>
+                          </tr>
+                        );
+                      })}
+                      <tr>
+                        <td></td>
+                        <td></td>
+                        <td>Total : ${total}</td>
+                      </tr>
+                    </tbody>
+                  </Table>
                 )}
-                <Input
-                  type="text"
-                  placeholder="Country"
-                  value={country}
-                  onChange={(ev) => setCountry(ev.target.value)}
-                />
-                {errors.country && <ErrorText>{errors.country}</ErrorText>}
-                <Button black block type="submit">
-                  Continue to payment
-                </Button>
-              </form>
-            </Box>
-          )}
-        </ColumnsWrapper>
-      </Center>
+              </Box>
+            </RevealWrapper>
+
+            {!!cartProducts?.length && (
+              <RevealWrapper delay={100}>
+                <Box>
+                  <h2>Order information</h2>
+                  <form
+                    onSubmit={(e) => {
+                      e.preventDefault();
+                      goToPayment();
+                    }}
+                  >
+                    <div>
+                      <Input
+                        type="text"
+                        placeholder="Name"
+                        value={name}
+                        onChange={(ev) => setName(ev.target.value)}
+                      />
+                      {errors.name && <ErrorText>{errors.name}</ErrorText>}
+                    </div>
+                    <div>
+                      <Input
+                        type="text"
+                        placeholder="Email"
+                        value={email}
+                        onChange={(ev) => setEmail(ev.target.value)}
+                      />
+                      {errors.email && <ErrorText>{errors.email}</ErrorText>}
+                    </div>
+                    <CityHolder>
+                      <Input
+                        type="text"
+                        placeholder="City"
+                        value={city}
+                        onChange={(ev) => setCity(ev.target.value)}
+                      />
+                      {errors.city && <ErrorText>{errors.city}</ErrorText>}
+                      <Input
+                        type="text"
+                        placeholder="Postal Code"
+                        value={postalCode}
+                        onChange={(ev) => setPostalCode(ev.target.value)}
+                      />
+                      {errors.postalCode && (
+                        <ErrorText>{errors.postalCode}</ErrorText>
+                      )}
+                    </CityHolder>
+                    <Input
+                      type="text"
+                      placeholder="Street Address"
+                      value={streetAddress}
+                      onChange={(ev) => setStreetAddress(ev.target.value)}
+                    />
+                    {errors.streetAddress && (
+                      <ErrorText>{errors.streetAddress}</ErrorText>
+                    )}
+                    <Input
+                      type="text"
+                      placeholder="Country"
+                      value={country}
+                      onChange={(ev) => setCountry(ev.target.value)}
+                    />
+                    {errors.country && <ErrorText>{errors.country}</ErrorText>}
+                    <Button black block type="submit">
+                      Continue to payment
+                    </Button>
+                  </form>
+                </Box>
+              </RevealWrapper>
+            )}
+          </ColumnsWrapper>
+        </Center>
       </SectionWrapper>
     </>
   );
