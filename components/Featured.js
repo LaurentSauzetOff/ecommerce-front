@@ -47,7 +47,7 @@ const ColumnsWrapper = styled.div`
   gap: 40px;
   align-items: center;
 
-  img {
+  img.main {
     max-width: 100%;
     max-height: 300px;
     display: block;
@@ -127,7 +127,7 @@ export default function Featured({ product }) {
           </Column>
           <Column>
             <RevealWrapper delay={0}>
-              <img src="/image.jpeg" alt={product.title} />
+              <img className={'main'} src="/image.jpeg" alt={product.title} />
             </RevealWrapper>
           </Column>
         </ColumnsWrapper>
