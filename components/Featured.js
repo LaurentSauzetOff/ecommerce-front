@@ -6,6 +6,15 @@ import CartIcon from "@/components/icons/CartIcon";
 import { useContext } from "react";
 import { CartContext } from "@/components/CartContext";
 import FlyingButton from "./FlyingButton";
+import dynamic from "next/dynamic";
+// import {RevealWrapper} from 'next-reveal'
+
+const RevealWrapper = dynamic(
+  () => import("next-reveal").then((mod) => mod.RevealWrapper),
+  {
+    ssr: false,
+  }
+);
 
 const Bg = styled.div`
   background: linear-gradient(135deg, #222, #333); /* Ajout d'un dégradé */
@@ -92,25 +101,34 @@ export default function Featured({ product }) {
         <ColumnsWrapper>
           <Column>
             <div>
-              <Title>{product.title}</Title>
-              <Desc>{product.description}</Desc>
-              <ButtonsWrapper>
-                <ButtonLink
-                  href={`/product/${product._id}`}
-                  outline={1}
-                  white={1}
-                >
-                  Read more
-                </ButtonLink>
-                <FlyingButton white main _id={product._id} src={product.images?.[0]}>
-                  <CartIcon />
-                  Add to cart
-                </FlyingButton>
-              </ButtonsWrapper>
+              <RevealWrapper origin={"left"}>
+                <Title>{product.title}</Title>
+                <Desc>{product.description}</Desc>
+                <ButtonsWrapper>
+                  <ButtonLink
+                    href={`/product/${product._id}`}
+                    outline={1}
+                    white={1}
+                  >
+                    Read more
+                  </ButtonLink>
+                  <FlyingButton
+                    white
+                    main
+                    _id={product._id}
+                    src={product.images?.[0]}
+                  >
+                    <CartIcon />
+                    Add to cart
+                  </FlyingButton>
+                </ButtonsWrapper>
+              </RevealWrapper>
             </div>
           </Column>
           <Column>
-            <img src="../public/image.jpeg" alt={product.title} />
+            <RevealWrapper>
+              <img src="/image.jpeg" alt={product.title} />
+            </RevealWrapper>
           </Column>
         </ColumnsWrapper>
       </Center>
