@@ -68,8 +68,8 @@ export default function FlyingButton(props) {
 
   function sendImageToCart(ev) {
     imgRef.current.style.display = "inline-block";
-    imgRef.current.style.left = (ev.clientX-50) + "px";
-    imgRef.current.style.top = (ev.clientY-50) + "px";
+    imgRef.current.style.left = ev.clientX - 50 + "px";
+    imgRef.current.style.top = ev.clientY - 50 + "px";
     setTimeout(() => {
       imgRef.current.style.display = "none";
     }, 1000);
@@ -85,15 +85,21 @@ export default function FlyingButton(props) {
     return () => clearInterval(interval);
   }, []);
 
+  const { main, white, ...buttonProps } = props;
+
   return (
     <>
-      <FlyingButtonWrapper
-        white={props.white}
-        main={props.main}
-        onClick={() => addProduct(props._id)}
-      >
-        <img src={props.src} ref={imgRef} />
-        <button onClick={(ev) => sendImageToCart(ev, props.src)} {...props} />
+      <FlyingButtonWrapper white={white} main={main}>
+        <img src={props.src} ref={imgRef} alt="Flying to cart" />
+        <button
+          onClick={(ev) => {
+            addProduct(props._id);
+            sendImageToCart(ev);
+          }}
+          {...buttonProps}
+        >
+          {props.children || "Add to cart"}
+        </button>
       </FlyingButtonWrapper>
     </>
   );
