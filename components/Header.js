@@ -7,9 +7,9 @@ import BarsIcon from "@/components/icons/Bars";
 import SearchIcon from "./icons/SearchIcon";
 
 const StyledHeader = styled.header`
-  background-color: rgba(34, 34, 34, 0.95); 
-  backdrop-filter: blur(5px); 
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); 
+  background-color: rgba(34, 34, 34, 0.95);
+  backdrop-filter: blur(5px);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
   position: sticky;
   top: 0;
   z-index: 10;
@@ -19,8 +19,8 @@ const Logo = styled(Link)`
   color: #fff;
   text-decoration: none;
   font-size: 1.5rem;
-  font-weight: bold; 
-  letter-spacing: 1px; 
+  font-weight: bold;
+  letter-spacing: 1px;
   position: relative;
   z-index: 3;
 `;
@@ -55,7 +55,7 @@ const StyledNav = styled.nav`
   padding: 70px 20px 20px;
   background-color: rgba(34, 34, 34, 0.95);
   transition: opacity 0.3s ease, transform 0.3s ease;
-  
+
   @media screen and (min-width: 768px) {
     display: flex;
     position: static;
@@ -70,18 +70,19 @@ const NavLink = styled(Link)`
   display: block;
   color: #ddd;
   text-decoration: none;
-  min-width:30px;
+  min-width: 30px;
   font-size: 1rem;
   font-weight: 500;
   padding: 10px 0;
-  transition: color 0.3s ease; 
+  transition: color 0.3s ease;
   svg {
-  height:20px;}
-  
-  &:hover {
-    color: #fff; 
+    height: 20px;
   }
-  
+
+  &:hover {
+    color: #fff;
+  }
+
   @media screen and (min-width: 768px) {
     padding: 0;
   }
@@ -96,14 +97,27 @@ const NavButton = styled.button`
   cursor: pointer;
   position: relative;
   z-index: 3;
-  transition: transform 0.3s ease; 
-  
+  transition: transform 0.3s ease;
+
   &:hover {
-    transform: rotate(90deg); 
+    transform: rotate(90deg);
   }
 
   @media screen and (min-width: 768px) {
     display: none;
+  }
+`;
+
+const SideIcons = styled.div`
+  display: flex;
+  a {
+    display: inline-block;
+    min-width: 20px;
+    color: white;
+    svg {
+      width: 14px;
+      height: 14px;
+    }
   }
 `;
 
@@ -123,12 +137,15 @@ export default function Header() {
             <NavLink href={"/account"}>Account</NavLink>
             <NavLink href={"/cart"}>Cart ({cartProducts?.length || 0})</NavLink>
           </StyledNav>
+          <SideIcons>
+            <Link href={"/search"}>
+              <SearchIcon />
+            </Link>
 
-          <NavLink href={"/search"}><SearchIcon/></NavLink>
-
-          <NavButton onClick={() => setMobileNavActive(prev => !prev)}>
-            <BarsIcon />
-          </NavButton>
+            <NavButton onClick={() => setMobileNavActive((prev) => !prev)}>
+              <BarsIcon />
+            </NavButton>
+          </SideIcons>
         </Wrapper>
       </Center>
     </StyledHeader>
