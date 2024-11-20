@@ -60,15 +60,15 @@ export default function FlyingButton(props) {
   const imgRef = useRef();
   const [buttonClicked, setButtonClicked] = useState(false);
 
-  const handleAddToCart = () => {
-    addProduct(product._id);
-    sendImageToCart();
+  const handleAddToCart = (ev) => {
+    addProduct(props._id);
+    sendImageToCart(ev); // Passer l'événement ici
     setButtonClicked(true);
     setTimeout(() => setButtonClicked(false), 1000);
   };
 
   function sendImageToCart(ev) {
-    if (imgRef.current) {
+    if (imgRef.current && ev) {
       imgRef.current.style.display = "inline-block";
       imgRef.current.style.left = ev.clientX - 50 + "px";
       imgRef.current.style.top = ev.clientY - 50 + "px";
@@ -101,7 +101,7 @@ export default function FlyingButton(props) {
     <>
       <FlyingButtonWrapper white={white} main={main}>
         <img src={props.src} ref={imgRef} alt="Flying to cart" />
-        <button onClick={handleAddToCart} {...buttonProps}>
+        <button onClick={(ev) => handleAddToCart(ev)} {...buttonProps}>
           {props.children || "Add to cart"}
         </button>
       </FlyingButtonWrapper>
